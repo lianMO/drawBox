@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .drawBox{width:10px;height: 10px;border: 1px black solid;margin-top:0px;float: left;
+                }
+        .line{ clear:left;}
+    </style>
+</head>
+<body>
+<div>
+    <form onsubmit="return false">
+    <input type="text" name="width" id="w_value" pattern="[0-9]*" title="number only" />
+    <input type="text" name="height" id="h_value" pattern="[0-9]*" title="number only" />
+    <input type="submit" onclick="create()" />
+    </form>
+</div>
+<div id="colorbox">
+<input type="color" name="color" id="c_value"  onchange="changeColor()" value="#000000"/>
+</div>
+<div id="canvasbox">
+
+
+</div>
+<div>
+    <button onclick="reset()" >reset</button>
+    <button onclick="cancelDraw()">cancel</button>
+    <input type="text" name="cc" id="cc_value" />
+    <button onclick="setColor()">set color</button>
+    <button onclick="saveAsFile()">save</button>
+</div>
+</body>
+
+<script>
+    var color = "#000000";
+    var lastChange = new Array();
+    var lastBox = new Array();
+
+    function create(){
+        document.getElementById("canvasbox").innerHTML = "";
+        var w = document.getElementById('w_value').value;
+        var h = document.getElementById('h_value').value;
+        //var arr = new Array();
+        var vetor = document.getElementById('canvasbox');
+        for(var i=0;i<h;i++)
+        {
+
+            //arr[i] = new Array() ;
+            for(var j=0;j<w;j++)
+            {
+                var box = document.createElement("div");
+
+                box.onclick = draw;
+                box.setAttribute("class","drawBox");
+                vetor.appendChild(box);
+                //arr[i][j] = box;
+            }
+            var clear = document.createElement("div");
+            clear.setAttribute("class","line");
+            vetor.appendChild(clear);
+            //vetor.appendChild();
+        }
+
+
+    }
+    function changeColor(){
+        var nc = document.getElementById('c_value').value;
+        color = nc;
+    }
+    function draw(){
+
+        lastChange.push(this.getAttribute("style"));
+        lastBox.push(this);
+
+        this.setAttribute("style","background:"+color+";border: 1px solid "+color);
+
+    }
+
+    function reset()
+    {
+
+        create();
+
+    }
+    function cancelDraw(){
+        var c = lastChange.pop();
+        var b = lastBox.pop();
+        b.setAttribute("style",c);
+    }
+
+    function setColor()
+    {
+        color = document.getElementById("cc_value").value;
+
+    }
+
+    function saveAsFile()
+    {
+        var w = document.getElementById('w_value').value;
+        var h = document.getElementById('h_value').value;
+        var arr = new Array();
+        var boxes = document.getElementsByClassName("drawBox");
+
+        for(var i = 0;i<h;i++)
+        {
+            arr[i] = new Array();
+            for(var j=0;j<w;j++)
+            {
+                var cc = RGBtoHEX(boxes[i*w+j].style.backgroundColor);
+
+                arr[i][j] = cc ;
+            }
+        }
+
+		console.log(arr);
+		
+        /*var XHR = new XMLHttpRequest();
+        if(XHR)
+        {
+            XHR.open("POST","http://localhost:3000",true);
+
+            XHR.onreadystatechange = function(){
+              if(XHR.readyState==4&&XHR.status==200)
+              {
+                  //console.log(XHR.responseText);
+                  XHR = null;
+              }
+            };
+            XHR.send("{width:"+w+",height:"+h+",data:["+arr.toString()+"]}");
+        }*/
+		
+
+    }
+
+    function RGBtoHEX(rgb)
+    {
+        var reg = /rgb|RGB/;
+        var co = "#";
+        var hex = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
+
+        if(reg.test(rgb)) {
+            var rgb_value = rgb.substring(rgb.indexOf("(") + 1, rgb.indexOf(")")).split(",");
+            for(var i in rgb_value)
+            {
+                var x = parseInt(rgb_value[i]);
+
+                if(x>16)
+                {
+                    var t = parseInt(x/16);
+                    var n = x%16;
+
+                    co+=hex[t]+hex[n];
+                }
+                else
+                {
+                    co+="0"+hex[x];
+                }
+            }
+        }else
+        {
+            co = "#ffffff";
+        }
+        return co;
+    }
+
+
+</script>
+</html>
+
